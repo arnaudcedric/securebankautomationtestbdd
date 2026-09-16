@@ -5,7 +5,7 @@
 
     <test name="Chrome Tests">
         <parameter name="browser" value="chrome"/>
-        <parameter name="headless" value="false"/>
+        <parameter name="headless" value="true"/>
 
         <classes>
             <class name="runners.TestRunner"/>
@@ -15,7 +15,7 @@
 
     <test name="Firefox Tests">
         <parameter name="browser" value="firefox"/>
-        <parameter name="headless" value="false"/>
+        <parameter name="headless" value="true"/>
 
         <classes>
             <class name="runners.TestRunner"/>
