@@ -18,30 +18,63 @@ public class Hooks {
         String browser = TestConfig.getBrowser();
 
         if (browser == null) {
-            browser = ConfigManager.get("browser");
+            browser = System.getProperty(
+                    "browser",
+                    ConfigManager.get("browser")
+            );
         }
 
-        Boolean configuredHeadless =
+        Boolean testNgHeadless =
                 TestConfig.getHeadless();
 
-        boolean headless =
-                configuredHeadless != null
-                        ? configuredHeadless
-                        : Boolean.parseBoolean(
-                        ConfigManager.get("headless")
-                );
+        boolean headless;
 
-        WebDriver driver =
-                DriverFactory.createDriver(
-                        browser,
-                        headless
-                );
+        if (testNgHeadless != null) {
+            headless = testNgHeadless;
+        } else {
 
+            headless = Boolean.parseBoolean(
+                    System.getProperty(
+                            "headless",
+                            ConfigManager.get("headless")
+                    )
+            );
+        }
+
+// -----------------------------------------
+        // DEBUG
+        // -----------------------------------------
+
+        System.out.println();
+        System.out.println(
+                "========================================"
+        );
+
+        System.out.println(
+                "Browser  : " + browser
+        );
+
+        System.out.println(
+                "Headless : " + headless
+        );
+
+        System.out.println(
+                "Tags     : " +
+                        System.getProperty(
+                                "cucumber.filter.tags",
+                                "No tag filter"
+                        )
+        );
+
+        System.out.println("========================================");
+
+
+        // -----------------------------------------
+        // DRIVER
+        // -----------------------------------------
+
+        WebDriver driver = DriverFactory.createDriver(browser, headless);
         DriverManager.setDriver(driver);
-
-//        driver.manage()
-//                .window()
-//                .maximize();
     }
 
 
@@ -52,14 +85,10 @@ public class Hooks {
                 DriverManager.getDriver();
 
         if (driver != null) {
-
             if (scenario.isFailed()) {
-
                 // Screenshot can be attached here
             }
-
             driver.quit();
-
             DriverManager.unload();
         }
     }
