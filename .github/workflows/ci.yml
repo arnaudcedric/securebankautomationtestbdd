@@ -17,7 +17,17 @@ on:
           - both
           - chrome
           - firefox
+      headless:
+        description: "Run browser in headless mode"
+        required: true
+        default: true
+        type: boolean
+
+
 jobs:
+  # =========================================================
+  # BUILD BROWSER MATRIX
+  # =========================================================
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -34,42 +44,85 @@ jobs:
           else
             echo 'browsers=["firefox"]' >> "$GITHUB_OUTPUT"
           fi
+  # =========================================================
+  # SELENIUM TESTS
+  # =========================================================
   selenium-tests:
     needs: prepare
     name: ${{ matrix.browser }} | ${{ inputs.tags }}
     runs-on: ubuntu-latest
     strategy:
+      # Firefox failing should not cancel Chrome
       fail-fast: false
       matrix:
         browser: ${{ fromJSON(needs.prepare.outputs.browsers) }}
+
+
     steps:
-      - name: Checkout
+      # -------------------------------------------------------
+      # CHECKOUT
+      # -------------------------------------------------------
+      - name: Checkout repository
         uses: actions/checkout@v4
+      # -------------------------------------------------------
+      # JAVA
+      # -------------------------------------------------------
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: "21"
           cache: maven
+      # -------------------------------------------------------
+      # ENVIRONMENT
+      # -------------------------------------------------------
+      - name: Display environment
+        run: |
+          echo "========================================"
+          echo "ENVIRONMENT"
+          echo "========================================"
+          java -version
+          mvn -version
+          echo "========================================"
+
+      # -------------------------------------------------------
+      # BROWSER VERSIONS
+      # -------------------------------------------------------
+      - name: Display browser versions
+        run: |
+          echo "========================================"
+          echo "BROWSER VERSIONS"
+          echo "========================================"
+          google-chrome --version || true
+          firefox --version || true
+          echo "========================================"
+
+      # -------------------------------------------------------
+      # TEST CONFIGURATION
+      # -------------------------------------------------------
+
       - name: Display test configuration
         run: |
           echo "========================================"
           echo "TEST EXECUTION"
           echo "========================================"
-          echo "Browser : ${{ matrix.browser }}"
-          echo "Headless: true"
-          echo "Tags    : ${{ inputs.tags }}"
+          echo "Browser  : ${{ matrix.browser }}"
+          echo "Headless : ${{ inputs.headless }}"
+          echo "Tags     : ${{ inputs.tags }}"
           echo "========================================"
-      - name: Display browser versions
-        run: |
-          google-chrome --version || true
-          firefox --version || true
+      # -------------------------------------------------------
+      # RUN TESTS
+      # -------------------------------------------------------
       - name: Run Cucumber tests
         run: |
           mvn -B -ntp clean test \
             -Dbrowser=${{ matrix.browser }} \
-            -Dheadless=true \
+            -Dheadless=${{ inputs.headless }} \
             -Dcucumber.filter.tags="${{ inputs.tags }}"
+
+      # -------------------------------------------------------
+      # REPORT
+      # -------------------------------------------------------
       - name: Upload Cucumber report
         if: always()
         uses: actions/upload-artifact@v4
