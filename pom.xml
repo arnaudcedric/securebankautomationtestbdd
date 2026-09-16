@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.cedric</groupId>
+    <artifactId>naveenecommerce</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <allure.version>2.29.1</allure.version>
+        <cucumber.version>7.22.1</cucumber.version>
+        <dotenv.version>3.2.0</dotenv.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.12.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.48.0</version>
+        </dependency>
+
+<!--        &lt;!&ndash; Loads .env (project root, git-ignored) so local/CI runs can-->
+<!--             override BASE_URL/BROWSER/HEADLESS/etc. without editing-->
+<!--             testng.xml. Used by EnvConfig (com.cedric.config), which-->
+<!--             BasePage and friends read from - no test scope since-->
+<!--             BasePage lives under src/main. &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.github.cdimascio</groupId>-->
+<!--            <artifactId>dotenv-java</artifactId>-->
+<!--            <version>${dotenv.version}</version>-->
+<!--        </dependency>-->
+
+        <!-- Allure TestNG adapter: auto-registers as a TestNG listener (via
+             ServiceLoader) and records each test's result, including the
+             "browser" @Parameters value, to target/allure-results. -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Cucumber (Gherkin/BDD): step definitions + the TestNG runner
+             (AbstractTestNGCucumberTests) so .feature scenarios execute as
+             ordinary TestNG tests, wired into testng.xml alongside the
+             plain Page-Object tests. cucumber-picocontainer lets Cucumber
+             inject a shared TestContext (holding the WebDriver) into the
+             Hooks and step definition classes for a given scenario. -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Allure Cucumber adapter: records each scenario/step to
+             target/allure-results, same as allure-testng does for the
+             plain TestNG tests. -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.5</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- Provides `mvn allure:report` (static HTML in target/site/allure-maven-plugin)
+                 and `mvn allure:serve` (builds + opens the report in a browser),
+                 reading from target/allure-results produced by the run above.
+                 reportVersion is the allure-commandline CLI used to render the
+                 HTML report - kept separate from allure.version (the adapter
+                 library) since their release numbers don't always line up. -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>3.0.3</version>
+                <configuration>
+                    <reportVersion>2.30.0</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

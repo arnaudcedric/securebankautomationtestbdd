@@ -1,0 +1,79 @@
+name: Selenium Cucumber Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Cucumber tag expression"
+        required: true
+        default: "@ui"
+        type: string
+      browser:
+        description: "Browser"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - chrome
+          - firefox
+      headless:
+        description: "Run headless"
+        required: true
+        default: true
+        type: boolean
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      browsers: ${{ steps.browser-matrix.outputs.browsers }}
+    steps:
+      - name: Build browser matrix
+        id: browser-matrix
+        shell: bash
+        run: |
+          if [ "${{ inputs.browser }}" = "both" ]; then
+            echo 'browsers=["chrome","firefox"]' >> "$GITHUB_OUTPUT"
+          elif [ "${{ inputs.browser }}" = "chrome" ]; then
+            echo 'browsers=["chrome"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'browsers=["firefox"]' >> "$GITHUB_OUTPUT"
+          fi
+  selenium-tests:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: ${{ fromJSON(needs.prepare.outputs.browsers) }}
+    name: ${{ matrix.browser }} Tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: "21"
+          cache: maven
+      - name: Show test configuration
+        run: |
+          echo "Browser  : ${{ matrix.browser }}"
+          echo "Headless : ${{ inputs.headless }}"
+          echo "Tags     : ${{ inputs.tags }}"
+      - name: Run tests
+        run: |
+          mvn -B clean test \
+            -Dbrowser=${{ matrix.browser }} \
+            -Dheadless=${{ inputs.headless }} \
+            -Dcucumber.filter.tags="${{ inputs.tags }}"
+      - name: Upload Cucumber report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report-${{ matrix.browser }}
+          path: |
+            target/cucumber-report.html
+            target/cucumber.json
+            target/surefire-reports/
+          if-no-files-found: ignore

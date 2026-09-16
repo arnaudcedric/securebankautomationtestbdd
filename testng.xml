@@ -1,0 +1,25 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="Cross Browser Cucumber Suite" parallel="tests" thread-count="2">
+<!--<suite name="Cross Browser Cucumber Suite">-->
+
+    <test name="Chrome Tests">
+        <parameter name="browser" value="chrome"/>
+        <parameter name="headless" value="false"/>
+
+        <classes>
+            <class name="runners.TestRunner"/>
+        </classes>
+    </test>
+
+
+    <test name="Firefox Tests">
+        <parameter name="browser" value="firefox"/>
+        <parameter name="headless" value="false"/>
+
+        <classes>
+            <class name="runners.TestRunner"/>
+        </classes>
+    </test>
+
+</suite>
