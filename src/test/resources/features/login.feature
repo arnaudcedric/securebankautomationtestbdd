@@ -14,7 +14,7 @@ Feature: User authentication
     Then the home page should be displayed
 
 
-  @regression @negative
+  @regression
   Scenario Outline: Login with different user accounts
 
     When the user logs in with username "<username>"
