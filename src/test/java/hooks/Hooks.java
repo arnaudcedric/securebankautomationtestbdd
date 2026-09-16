@@ -1,53 +1,100 @@
 package hooks;
 
 import config.TestConfig;
+
 import framework.config.ConfigManager;
 import framework.driver.DriverFactory;
 import framework.driver.DriverManager;
+
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
 public class Hooks {
 
     @Before
-    public void setUp() {
+    public void setUp(Scenario scenario) {
 
-        String browser = TestConfig.getBrowser();
+        // =====================================================
+        // BROWSER
+        //
+        // Priority:
+        // 1. Maven / GitHub / Jenkins -Dbrowser
+        // 2. testng.xml
+        // 3. config properties
+        // =====================================================
 
-        if (browser == null) {
-            browser = System.getProperty(
-                    "browser",
-                    ConfigManager.get("browser")
-            );
+        String browser =
+                System.getProperty("browser");
+
+        if (browser == null || browser.isBlank()) {
+            browser = TestConfig.getBrowser();
         }
 
-        Boolean testNgHeadless =
-                TestConfig.getHeadless();
+        if (browser == null || browser.isBlank()) {
+            browser = ConfigManager.get("browser");
+        }
+
+
+        // =====================================================
+        // HEADLESS
+        //
+        // Priority:
+        // 1. Maven / GitHub / Jenkins -Dheadless
+        // 2. testng.xml
+        // 3. config properties
+        // =====================================================
+
+        String systemHeadless =
+                System.getProperty("headless");
 
         boolean headless;
 
-        if (testNgHeadless != null) {
-            headless = testNgHeadless;
+        if (systemHeadless != null) {
+
+            headless =
+                    Boolean.parseBoolean(systemHeadless);
+
+        } else if (TestConfig.getHeadless() != null) {
+
+            headless =
+                    TestConfig.getHeadless();
+
         } else {
 
-            headless = Boolean.parseBoolean(
-                    System.getProperty(
-                            "headless",
+            headless =
+                    Boolean.parseBoolean(
                             ConfigManager.get("headless")
-                    )
-            );
+                    );
         }
 
-// -----------------------------------------
-        // DEBUG
-        // -----------------------------------------
+
+        // =====================================================
+        // CUCUMBER TAG FILTER
+        // =====================================================
+
+        String tagFilter =
+                System.getProperty(
+                        "cucumber.filter.tags",
+                        "No tag filter"
+                );
+
+
+        // =====================================================
+        // LOG EXECUTION CONFIGURATION
+        // =====================================================
 
         System.out.println();
         System.out.println(
                 "========================================"
+        );
+
+        System.out.println(
+                "Scenario : " + scenario.getName()
         );
 
         System.out.println(
@@ -59,21 +106,34 @@ public class Hooks {
         );
 
         System.out.println(
-                "Tags     : " +
-                        System.getProperty(
-                                "cucumber.filter.tags",
-                                "No tag filter"
-                        )
+                "Tag Filter: " + tagFilter
         );
 
-        System.out.println("========================================");
+        System.out.println(
+                "Scenario Tags: "
+                        + scenario.getSourceTagNames()
+        );
+
+        System.out.println(
+                "Thread   : "
+                        + Thread.currentThread().getName()
+        );
+
+        System.out.println(
+                "========================================"
+        );
 
 
-        // -----------------------------------------
-        // DRIVER
-        // -----------------------------------------
+        // =====================================================
+        // CREATE DRIVER
+        // =====================================================
 
-        WebDriver driver = DriverFactory.createDriver(browser, headless);
+        WebDriver driver =
+                DriverFactory.createDriver(
+                        browser,
+                        headless
+                );
+
         DriverManager.setDriver(driver);
     }
 
@@ -84,11 +144,47 @@ public class Hooks {
         WebDriver driver =
                 DriverManager.getDriver();
 
-        if (driver != null) {
-            if (scenario.isFailed()) {
-                // Screenshot can be attached here
+        if (driver == null) {
+            return;
+        }
+
+        try {
+
+            // =================================================
+            // SCREENSHOT ON FAILURE
+            // =================================================
+
+            if (scenario.isFailed()
+                    && driver instanceof TakesScreenshot) {
+
+                byte[] screenshot =
+                        ((TakesScreenshot) driver)
+                                .getScreenshotAs(
+                                        OutputType.BYTES
+                                );
+
+                scenario.attach(
+                        screenshot,
+                        "image/png",
+                        "Failure Screenshot"
+                );
             }
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Unable to capture screenshot: "
+                            + e.getMessage()
+            );
+
+        } finally {
+
+            // =================================================
+            // CLOSE DRIVER
+            // =================================================
+
             driver.quit();
+
             DriverManager.unload();
         }
     }

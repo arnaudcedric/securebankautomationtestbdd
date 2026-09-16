@@ -18,7 +18,8 @@ import org.testng.annotations.*;
         plugin = {
                 "pretty",
                 "html:target/cucumber-report.html",
-                "json:target/cucumber.json"
+                "json:target/cucumber.json",
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         }
 )
 public class TestRunner extends AbstractTestNGCucumberTests {
@@ -27,27 +28,33 @@ public class TestRunner extends AbstractTestNGCucumberTests {
     public void configureExecution(ITestContext testContext) {
 
         String browser =
-                testContext.getCurrentXmlTest()
+                testContext
+                        .getCurrentXmlTest()
                         .getParameter("browser");
 
         String headless =
-                testContext.getCurrentXmlTest()
+                testContext
+                        .getCurrentXmlTest()
                         .getParameter("headless");
 
-        TestConfig.setBrowser(browser);
-        TestConfig.setHeadless(Boolean.parseBoolean(headless));
 
-        System.out.println(
-                "TestNG execution: " +
-                        testContext.getName()
-        );
+        // Only populate TestConfig when TestNG
+        // actually supplied the parameter.
 
-        System.out.println(
-                "Browser: " + browser
-        );
+        if (browser != null && !browser.isBlank()) {
+            TestConfig.setBrowser(browser);
+        }
 
-        System.out.println(
-                "Headless: " + headless
-        );
+        if (headless != null && !headless.isBlank()) {
+            TestConfig.setHeadless(
+                    Boolean.parseBoolean(headless)
+            );
+        }
+    }
+
+
+    @AfterClass
+    public void cleanUpExecution() {
+        TestConfig.clear();
     }
 }
