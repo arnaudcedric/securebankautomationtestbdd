@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3916'          // Adjust to your Jenkins Maven installation name
-        jdk 'JDK21'               // or JDK-21
+        maven 'maven3916'          // Adjust to your Jenkins Maven installation name
+        jdk 'jdk21'               // or JDK-21
     }
 
     parameters {
