@@ -41,6 +41,7 @@ pipeline {
         stage('Publish Reports') {
             steps {
                 // Cucumber HTML
+                // HTML Publisher plugin to install
                 publishHTML(target: [
                     reportName: 'Cucumber Report',
                     reportDir: 'target',
