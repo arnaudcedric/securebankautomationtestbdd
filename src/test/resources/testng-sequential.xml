@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- One browser, no TestNG parallelism at all (parallel="none" is the
+     default, stated explicitly here for clarity): every Cucumber scenario
+     for this browser runs one after another, in a single thread. Contrast
+     with testng-parallel.xml (parallel="methods") and
+     testng-crossbrowser.xml (parallel="tests"). -->
+<suite name="Sequential Suite" parallel="none" verbose="1">
+    <test name="Sequential Test">
+        <parameter name="browser" value="chrome"/>
+        <parameter name="headless" value="true"/>
+        <classes>
+            <class name="runners.TestRunner"/>
+        </classes>
+    </test>
+</suite>

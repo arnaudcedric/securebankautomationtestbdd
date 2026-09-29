@@ -15,6 +15,13 @@
         <allure.version>2.29.1</allure.version>
         <cucumber.version>7.22.1</cucumber.version>
 <!--        <dotenv.version>3.2.0</dotenv.version>-->
+
+        <!-- Which TestNG suite Surefire runs. This is a plain Maven property
+             (not a plugin @Parameter), so - unlike suiteXmlFiles itself - it
+             CAN be overridden from the command line, e.g.:
+               mvn test -DsuiteXmlFile=src/test/resources/testng-parallel.xml
+             Defaults to the root cross-browser suite for local/manual runs. -->
+        <suiteXmlFile>testng.xml</suiteXmlFile>
     </properties>
 
     <dependencies>
@@ -97,9 +104,14 @@
                 <version>3.5.5</version>
                 <configuration>
 
-<!--                    <suiteXmlFiles>-->
-<!--                        <suiteXmlFile>testng.xml</suiteXmlFile>-->
-<!--                    </suiteXmlFiles>-->
+                    <!-- suiteXmlFiles itself has NO command-line override
+                         (Surefire docs: "User Property: -"), so it must
+                         reference a Maven property instead of being a fixed
+                         list - that property (defined above) is what
+                         -DsuiteXmlFile=... on the CLI actually overrides. -->
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+                    </suiteXmlFiles>
 
                     <systemPropertyVariables>
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>

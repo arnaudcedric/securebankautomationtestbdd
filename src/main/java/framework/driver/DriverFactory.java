@@ -11,6 +11,12 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
+/**
+ * Factory that creates a configured {@link WebDriver} instance for a given
+ * browser name ({@code chrome}, {@code firefox}, or {@code edge}), optionally
+ * headless. Called from {@code hooks.Hooks} before each scenario; the
+ * resulting driver is then stored in {@code framework.driver.DriverManager}.
+ */
 public final class DriverFactory {
 
     private DriverFactory() {

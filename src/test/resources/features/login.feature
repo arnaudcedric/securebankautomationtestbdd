@@ -24,9 +24,10 @@ Feature: User authentication
 
     @positive
     Examples:
-      | username       | password   | result  | expectedMessage                                    |
-      | standard_user  | bank_sauce | SUCCESS | Welcome back, Alex                                 |
-      | standard_user1 | bank_sauce | FAILURE | The username or password you entered is incorrect. |
+      | username       | password    | result  | expectedMessage                                    |
+      | standard_user  | bank_sauce  | SUCCESS | Welcome back, Alex                                 |
+      | standard_user1 | bank_sauce  | FAILURE | The username or password you entered is incorrect. |
+      | standard_user1 | bank_sauce1 | FAILURE | The username or password you entered is incorrect. |
 
     @negative
     Examples:

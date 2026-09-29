@@ -7,6 +7,14 @@ import org.openqa.selenium.support.PageFactory;
 
 import java.util.List;
 
+/**
+ * Component for the "Dashboard" section (net worth, net change, income and
+ * expense stat cards), reached via {@link SidebarComponent#goToDashboard()}.
+ * <p>
+ * Note: unlike most other components, this class does not extend
+ * {@code BaseComponent}; it initializes its own {@link WebDriver} field and
+ * {@link PageFactory} elements directly.
+ */
 public class DashboardComponent {
 
     private WebDriver driver;

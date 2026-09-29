@@ -13,6 +13,13 @@ import java.util.List;
 
 import static types.LoginResult.SUCCESS;
 
+/**
+ * Step definitions backing {@code login.feature}: navigating to the login
+ * page, submitting credentials (either as a full data table row or as
+ * separate username/password steps), and asserting the outcome (home page
+ * welcome message on success, inline error message on failure). Uses the
+ * injected {@link ScenarioContext} to access shared page objects.
+ */
 public class LoginSteps {
 
     private final ScenarioContext context;

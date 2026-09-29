@@ -1,4 +1,13 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- Single browser, scenario-level parallelism: with only one <test> block,
+     "tests" parallel mode has nothing to parallelize (it only spreads work
+     across separate <test> tags). "methods" is required to actually run the
+     Cucumber scenarios (each is a TestNG "method" invocation via the
+     scenarios() @DataProvider) across thread-count threads. This also
+     requires runners.TestRunner to override scenarios() as
+     @DataProvider(parallel = true) - see that class - otherwise TestNG still
+     invokes the data-provider's rows sequentially regardless of this
+     suite-level setting. -->
 <suite name="Parallel Suite" parallel="methods" thread-count="4" verbose="1">
     <test name="Login Tests - Parallel">
         <parameter name="browser" value="chrome"/>

@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Loads and exposes test configuration from a classpath properties file,
+ * chosen via the {@code -Denv} system property (defaults to {@code qa}),
+ * e.g. {@code -Denv=qa} loads {@code config-qa.properties} from
+ * {@code src/test/resources}. Properties are loaded once into a static
+ * block and are read-only afterwards via {@link #get(String)}.
+ */
 public final class ConfigManager {
 
     private static final Properties PROPERTIES = new Properties();

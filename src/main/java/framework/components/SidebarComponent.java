@@ -5,6 +5,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+/**
+ * Component for the dashboard's left-hand navigation sidebar. Present on
+ * every authenticated page ({@link framework.pages.BankHomePage} holds one),
+ * it exposes one {@code goToX()} method per link, each of which clicks the
+ * link and returns the corresponding section's component, allowing calls to
+ * be chained (e.g. {@code sidebar().goToAccounts().getMyAccountText()}).
+ */
 public class SidebarComponent {
 
     private WebDriver driver;

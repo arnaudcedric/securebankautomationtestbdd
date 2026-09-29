@@ -7,6 +7,12 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
+/**
+ * Component for the "Accounts" section of the dashboard, reached via
+ * {@link SidebarComponent#goToAccounts()}. Models the accounts table
+ * (headers, wrapper, stat cards) and exposes the page title text used
+ * for navigation assertions.
+ */
 public class AccountsComponent extends BaseComponent {
 
     @FindBy(css = "[data-testid='accounts-table-wrapper']")

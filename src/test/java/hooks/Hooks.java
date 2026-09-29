@@ -14,6 +14,20 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
+/**
+ * Cucumber lifecycle hooks that run around every scenario.
+ * <p>
+ * {@link #setUp(Scenario)} resolves the {@code browser} and {@code headless}
+ * settings (system property &gt; {@code config.TestConfig}/testng.xml &gt;
+ * {@code config-*.properties}), logs the resolved execution configuration,
+ * creates a {@link WebDriver} via {@code framework.driver.DriverFactory},
+ * and stores it in {@code framework.driver.DriverManager} for the scenario's
+ * duration.
+ * <p>
+ * {@link #tearDown(Scenario)} attaches a screenshot to the Cucumber/Allure
+ * report if the scenario failed, then quits the driver and clears it from
+ * {@code DriverManager}.
+ */
 public class Hooks {
 
     @Before

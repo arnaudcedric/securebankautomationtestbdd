@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'          // Adjust to your Jenkins Maven installation name
+        jdk 'JDK-17'               // or JDK-21
+    }
+
+    parameters {
+        choice(name: 'EXECUTION_TYPE', choices: ['parallel-same-browser', 'cross-browser', 'both'], description: 'What to run')
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Browser for parallel-same-browser mode')
+        string(name: 'TAGS', defaultValue: '@ui', description: 'Cucumber tags (e.g. @smoke and not @wip)')
+    }
+
+    environment {
+        HEADLESS = 'true'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Run Tests') {
+            parallel {
+                stage('Same Browser - Parallel Scenarios') {
+                    when {
+                        expression { params.EXECUTION_TYPE == 'parallel-same-browser' || params.EXECUTION_TYPE == 'both' }
+                    }
+                    steps {
+                        // -DsuiteXmlFile (not -Dsurefire.suiteXmlFiles) is what
+                        // pom.xml's ${suiteXmlFile} property actually reads -
+                        // see the "Gotchas" section in README.md. The old
+                        // -DthreadCount flag was also removed: it's a no-op
+                        // once you supply your own suite file, the real
+                        // thread count is testng-parallel.xml's own
+                        // thread-count="4" attribute.
+                        sh """
+                            mvn clean test \
+                              -DsuiteXmlFile=src/test/resources/testng-parallel.xml \
+                              -Dbrowser=${params.BROWSER} \
+                              -Dheadless=${HEADLESS} \
+                              -Dcucumber.filter.tags="${params.TAGS}"
+                        """
+                    }
+                }
+
+                stage('Cross Browser') {
+                    when {
+                        expression { params.EXECUTION_TYPE == 'cross-browser' || params.EXECUTION_TYPE == 'both' }
+                    }
+                    steps {
+                        sh """
+                            mvn clean test \
+                              -DsuiteXmlFile=src/test/resources/testng-crossbrowser.xml \
+                              -Dheadless=${HEADLESS} \
+                              -Dcucumber.filter.tags="${params.TAGS}"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Publish Reports') {
+            steps {
+                // Cucumber HTML
+                publishHTML(target: [
+                    reportName: 'Cucumber Report',
+                    reportDir: 'target',
+                    reportFiles: 'cucumber-report.html',
+                    keepAll: true
+                ])
+
+                // Allure (if you have the plugin)
+                allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'target/cucumber-report.html, target/cucumber.json, target/allure-results/**', allowEmptyArchive: true
+            cleanWs()
+        }
+    }
+}
