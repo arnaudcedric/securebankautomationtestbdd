@@ -28,6 +28,8 @@ Feature: User authentication - 2
       | standard_user  | bank_sauce  | SUCCESS | Welcome back, Alex                                 |
       | standard_user1 | bank_sauce  | FAILURE | The username or password you entered is incorrect. |
       | standard_user1 | bank_sauce1 | FAILURE | The username or password you entered is incorrect. |
+      | standard_user1 | bank_sauce2 | FAILURE | The username or password you entered is incorrect. |
+      | standard_user1 | bank_sauce3 | FAILURE | The username or password you entered is incorrect. |
 
     @negative
     Examples:
