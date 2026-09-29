@@ -1,5 +1,5 @@
 @ui @login
-Feature: User authentication - 0
+Feature: User authentication - 2
 
   Background:
     Given the user is on the login page
