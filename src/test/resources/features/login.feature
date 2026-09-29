@@ -4,7 +4,7 @@ Feature: User authentication
   Background:
     Given the user is on the login page
 
-  @smoke @positive
+  @smoke @positive @regression
   Scenario: Successful login
 
     When the user logs in with:
